@@ -1,0 +1,147 @@
+* {
+	/* outline: 1px solid red; */
+}
+
+html, body, .site, .app {
+	margin: 0;
+	padding: 0;
+	width: 100vw;
+	height: 100vh;
+}
+
+body {
+	background-color: white;
+	color: black;
+	font-family: Calibri, sans-serif;
+}
+
+div, h1, p {
+	margin: 0;
+	padding: 0;
+}
+
+a, a:visited {
+	color: #0000dd;
+	text-decoration: none;
+}
+
+.site, .app {
+	display: flex;
+	overflow: hidden;
+	flex-direction: column;
+}
+
+/* ----------Viewport---------- */
+.viewport {
+	display: flex;
+	flex-direction: column;
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.fixture {
+	margin: 5px;
+	width: 50px;
+	height: 50px;
+	outline: none;
+
+	-webkit-appearance: none;
+}
+
+.fixture:checked {
+	outline: 4px solid rgb(255, 255, 0);
+}
+
+.fixture.led {
+	border: 5px solid #747474;
+	background-color: black;
+}
+
+/* ----------Editor---------- */
+.labels, .sliders, .buttons {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	padding: 10px;
+	width: calc(100% - 20px);
+
+	user-select: none;
+}
+
+.labels > p {
+	font-size: 24px;
+}
+
+.attrLabel, .slider-container, .button-container, .fixtureLabel {
+	/* flex: 1; */
+	justify-content: center;
+	text-align: center;
+}
+
+.sliders {
+	/* height: 30vh; */
+}
+
+.slider-container {
+	/* width: max-content; */
+	max-width: 14px;
+	height: 20vh;
+}
+
+.slider {
+	width: 20vh;
+	height: 10px;
+	outline: none;
+	background-color: rgb(43, 43, 43);
+	transform: rotate(-90deg) translateX(-8vh) translateY(-9vh);
+
+	-webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+	width: 40px;
+	height: 30px;
+	background-color: gray;
+
+	-webkit-appearance: none;
+}
+
+/* #attr .slider {
+	width: 20vh
+} */
+
+.button-container {
+	justify-content: center;
+	width: max-content;
+}
+
+.button {
+	width: 30px;
+	height: 30px;
+	outline: none;
+	border: 2px solid black;
+	border-radius: 100%;
+	background-color: black;
+
+	-webkit-appearance: none;
+}
+
+.button.cue {
+	background-color: darkred;
+}
+
+.button.on {
+	background-color: red;
+}
+
+.button.priority {
+	background-color: rgb(0, 182, 0);
+}
+
+.button.saved {
+	background-color: orange;
+}

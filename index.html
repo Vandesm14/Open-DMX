@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<title>DMX Console</title>
+		<link href="style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div class="app">
+			<div class="viewport">
+				<div class="row">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+				</div>
+				<div class="row">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+					<input type="checkbox" class="fixture led">
+				</div>
+			</div>
+			<div class="editor">
+				<div class="labels">
+					<p class="attrLabel">Red</p>
+					<p class="attrLabel">Green</p>
+					<p class="attrLabel">Blue</p>
+					<p class="attrLabel">N/A</p>
+					<p class="attrLabel">N/A</p>
+				</div>
+				<div class="sliders" id="attr">
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+				</div>
+				<div class="sliders" id="scene">
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+					<div class="slider-container">
+						<input type="range" class="slider" value="0" min="0" max="100" step="1">
+					</div>
+				</div>
+				<div class="buttons">
+					<button class="button"></button>
+					<button class="button"></button>
+					<button class="button"></button>
+					<button class="button"></button>
+					<button class="button"></button>
+					<button class="button"></button>
+					<button class="button"></button>
+					<button class="button"></button>
+				</div>
+				<div class="labels">
+					<p class="fixtureLabel">1</p>
+					<p class="fixtureLabel">2</p>
+					<p class="fixtureLabel">3</p>
+					<p class="fixtureLabel">4</p>
+					<p class="fixtureLabel">5</p>
+					<p class="fixtureLabel">6</p>
+					<p class="fixtureLabel">7</p>
+					<p class="fixtureLabel">8</p>
+				</div>
+			</div>
+		</div>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>
