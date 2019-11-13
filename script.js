@@ -60,7 +60,6 @@ $(document).ready(function () {
 	});
 
 	$('#attr .slider').on('input', function () {
-		// tofx = copy(fixtures);
 		for (let i in tofx) {
 			if (select.includes(tofx[i].addr)) {
 				let hsl = [];
@@ -133,8 +132,6 @@ function updateFixtures() {
 
 function updateScenes() {
 	let fade = false;
-	// tofx = copy(fixtures);
-	// tofx = fixtures;
 	for (let i in scenes) {
 		if (play[i] && i !== priority) {
 			for (let k in scenes[i][cues[i]]) {
@@ -161,11 +158,8 @@ function updateScenes() {
 		}
 	}
 	if (fade) {
-		// setFX(2);
 		setFX(0.2);
 	} else {
-		// updateFixtures();
-		// setFX(0.5);
 		setFX(0.2);
 	}
 }
@@ -179,7 +173,6 @@ function setFX(time) {
 		if (fxtime > 0) {
 			for (let i in fixtures) {
 				for (let k in properties) {
-					// fixtures[i].dmx[properties[k]] = fromfx[i].dmx[properties[k]] + (tofx[i].dmx[properties[k]] - fromfx[i].dmx[properties[k]]) * (fxspeed - fxtime) / fxspeed;
 					fixtures[i].dmx[properties[k]] = fromfx[i].dmx[properties[k]] + (tofx[i].dmx[properties[k]] - fromfx[i].dmx[properties[k]]) * (fxspeed - fxtime) / fxspeed;
 				}
 			}
@@ -202,12 +195,10 @@ function updateButtons() {
 		if (cues[i] > 0 && scenes[i][cues[i] - 1] && scenes[i][cues[i] - 1].length > 0) {
 			$(`#cue-down .button:eq(${i})`).addClass('has');
 		}
-
 		if (scenes[i][cues[i]] && scenes[i][cues[i]].length > 0) {
 			$(`#scene-save .button:eq(${i})`).addClass('has');
 		}
-
-		$(`#scene-cue .label:eq(${i})`).text(`Cue: ${cues[i] + 1}/${cues[i] > scenes[i].length ? cues[i] : scenes[i].length}`);
+		$(`#scene-cue .label:eq(${i})`).text(`Cue: ${cues[i] + 1}/${(cues[i] + 1) > scenes[i].length ? cues[i] + 1 : scenes[i].length}`);
 	}
 }
 
