@@ -62,7 +62,7 @@ a, a:visited {
 }
 
 /* ----------Editor---------- */
-.labels, .sliders, .buttons {
+.controls, .labels, .sliders, .buttons {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
@@ -126,6 +126,9 @@ a, a:visited {
 	border: 2px solid black;
 	border-radius: 100%;
 	background-color: black;
+	font-size: 17px;
+	color: white;
+	text-align: center;
 
 	-webkit-appearance: none;
 }
