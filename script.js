@@ -54,16 +54,22 @@ $(document).ready(function () {
 		// tofx = copy(fixtures);
 		for (let i in tofx) {
 			if (select.includes(tofx[i].addr)) {
+				let hsl = [];
 				for (let k in properties) {
 					tofx[i].dmx[properties[k]] = parseInt($(`#attr .slider:eq(${k})`).val()) / 100;
+					// hsl.push(parseInt($(`#attr .slider:eq(${k})`).val())/100);
 				}
+				// console.log([hsl[0],hsl[1],hsl[2]]);
+				// let rgb = hsl2rgb(hsl[0]*255,hsl[1]*100,hsl[2]*100);
+				// console.log(rgb);
+				// tofx[i].dmx = copy(rgb);
 			}
 		}
 		// updateFixtures();
 		setFX(0.5);
 	});
 
-	$('.button').on('click', function () {
+	$('#scene-save .button').on('click', function () {
 		scenes[$(this).index()] = copy(fixtures.filter((el, i) => select.includes(i)));
 		$(this).addClass('saved');
 		$('.cue').removeClass('cue');
@@ -105,6 +111,7 @@ $(document).ready(function () {
 function updateFixtures() {
 	for (let i in fixtures) {
 		$(`.fixture[data-addr=${i}]`).css('background-color', `rgb(${fixtures[i].dmx.red * 255}, ${fixtures[i].dmx.green * 255}, ${fixtures[i].dmx.blue * 255})`);
+		// $(`.fixture[data-addr=${i}]`).css('background-color', `hsl(${fixtures[i].dmx.red * 255}, ${fixtures[i].dmx.green * 100}%, ${fixtures[i].dmx.blue * 100}%)`);
 	}
 }
 
@@ -117,7 +124,7 @@ function updateScenes() {
 			for (let k in scenes[i]) {
 				let fixture = tofx.find(el => el.addr === scenes[i][k].addr);
 				for (let j in properties) {
-					fixture.dmx[properties[j]] = scenes[i][k].dmx[properties[j]] * (values[i]/100);
+					fixture.dmx[properties[j]] = scenes[i][k].dmx[properties[j]] * (values[i] / 100);
 				}
 			}
 		}
@@ -134,7 +141,7 @@ function updateScenes() {
 	for (let k in scenes[priority]) {
 		let fixture = tofx.find(el => el.addr === scenes[priority][k].addr);
 		for (let j in properties) {
-			fixture.dmx[properties[j]] = scenes[priority][k].dmx[properties[j]] * (values[priority]/100);
+			fixture.dmx[properties[j]] = scenes[priority][k].dmx[properties[j]] * (values[priority] / 100);
 		}
 	}
 	if (fade) {
@@ -149,10 +156,10 @@ function updateScenes() {
 
 function setFX(time) {
 	fromfx = copy(fixtures);
-	fxtime = time*100;
+	fxtime = time * 100;
 	fxspeed = fxtime;
 	clearInterval(fxinterval);
-	fxinterval = setInterval(function(){
+	fxinterval = setInterval(function () {
 		if (fxtime > 0) {
 			for (let i in fixtures) {
 				for (let k in properties) {
@@ -171,4 +178,26 @@ function setFX(time) {
 
 function copy(obj) {
 	return JSON.parse(JSON.stringify(obj));
+}
+
+function hsl2rgb(h, s, l) {
+  var r, g, b;
+  if (s == 0) {
+    r = g = b = l; // achromatic
+  } else {
+    function hue2rgb(p, q, t) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  return {red: r * 255, green: g * 255, blue: b * 255};
 }
