@@ -73,7 +73,7 @@ a, a:visited {
 }
 
 .labels > p {
-	font-size: 24px;
+	font-size: 20px;
 }
 
 .attrLabel, .slider-container, .button-container, .fixtureLabel {
@@ -126,14 +126,14 @@ a, a:visited {
 	border: 2px solid black;
 	border-radius: 100%;
 	background-color: black;
-	font-size: 17px;
 	color: white;
 	text-align: center;
+	font-size: 17px;
 
 	-webkit-appearance: none;
 }
 
-.button.cue {
+.button.has {
 	background-color: darkred;
 }
 

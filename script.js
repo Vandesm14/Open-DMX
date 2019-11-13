@@ -1,6 +1,7 @@
 var fixtures = [];
 var properties = ['red', 'green', 'blue'];
 var select = [];
+var cues = [];
 
 var scenes = [];
 var values = [];
@@ -35,6 +36,7 @@ $(document).ready(function () {
 	$('#scene .slider').each(function () {
 		play.push(false);
 		cues.push(0);
+		scenes.push([[]]);
 	});
 
 	/* --------Listeners-------- */
@@ -75,15 +77,24 @@ $(document).ready(function () {
 		setFX(0.2);
 	});
 
-	$('#scene-save .button').on('click', function () {
-		scenes[$(this).index()] = copy(fixtures.filter((el, i) => select.includes(i)));
-		$(this).addClass('saved');
-		$('.cue').removeClass('cue');
-		for (let i in scenes) {
-			if (scenes[i].length > 0) {
-				$(`#scene-save .button:eq(${i})`).addClass('cue');
-			}
+	$('#cue-up .button').on('click', function () {
+		cues[$(this).index()]++;
+		updateButtons();
+		updateScenes();
+	});
+
+	$('#cue-down .button').on('click', function () {
+		if (cues[$(this).index()] > 0) {
+			cues[$(this).index()]--;
+			updateButtons();
+			updateScenes();
 		}
+	});
+
+	$('#scene-save .button').on('click', function () {
+		scenes[$(this).index()][cues[$(this).index()]] = copy(fixtures.filter((el, i) => select.includes(i)));
+		$(this).addClass('saved');
+		updateButtons();
 		setTimeout(function () {
 			$('.saved').removeClass('saved');
 		}, 300);
@@ -117,7 +128,6 @@ $(document).ready(function () {
 function updateFixtures() {
 	for (let i in fixtures) {
 		$(`.fixture[data-addr=${i}]`).css('background-color', `rgb(${fixtures[i].dmx.red * 255}, ${fixtures[i].dmx.green * 255}, ${fixtures[i].dmx.blue * 255})`);
-		// $(`.fixture[data-addr=${i}]`).css('background-color', `hsl(${fixtures[i].dmx.red * 255}, ${fixtures[i].dmx.green * 100}%, ${fixtures[i].dmx.blue * 100}%)`);
 	}
 }
 
@@ -127,10 +137,10 @@ function updateScenes() {
 	// tofx = fixtures;
 	for (let i in scenes) {
 		if (play[i] && i !== priority) {
-			for (let k in scenes[i]) {
-				let fixture = tofx.find(el => el.addr === scenes[i][k].addr);
+			for (let k in scenes[i][cues[i]]) {
+				let fixture = tofx.find(el => el.addr === scenes[i][cues[i]][k].addr);
 				for (let j in properties) {
-					fixture.dmx[properties[j]] = scenes[i][k].dmx[properties[j]] * (values[i] / 100);
+					fixture.dmx[properties[j]] = scenes[i][cues[i]][k].dmx[properties[j]] * (values[i] / 100);
 				}
 			}
 		}
@@ -144,17 +154,16 @@ function updateScenes() {
 			play[i] = true;
 		}
 	}
-	for (let k in scenes[priority]) {
-		let fixture = tofx.find(el => el.addr === scenes[priority][k].addr);
+	for (let k in scenes[priority][cues[priority]]) {
+		let fixture = tofx.find(el => el.addr === scenes[priority][cues[priority]][k].addr);
 		for (let j in properties) {
-			fixture.dmx[properties[j]] = scenes[priority][k].dmx[properties[j]] * (values[priority] / 100);
+			fixture.dmx[properties[j]] = scenes[priority][cues[priority]][k].dmx[properties[j]] * (values[priority] / 100);
 		}
 	}
 	if (fade) {
 		// setFX(2);
 		setFX(0.2);
 	} else {
-		console.log('nofade');
 		// updateFixtures();
 		// setFX(0.5);
 		setFX(0.2);
@@ -183,29 +192,48 @@ function setFX(time) {
 	}, 10);
 }
 
+function updateButtons() {
+	$('#cue-up .has, #cue-down .has').removeClass('has');
+	for(let i in scenes) {
+		if (scenes[i][cues[i] + 1] && scenes[i][cues[i] + 1].length > 0) {
+			$(`#cue-up .button:eq(${i})`).addClass('has');
+		}
+		console.log(scenes[i][cues[i] - 1] && scenes[i][cues[i] - 1].length > 0);
+		if (cues[i] > 0 && scenes[i][cues[i] - 1] && scenes[i][cues[i] - 1].length > 0) {
+			$(`#cue-down .button:eq(${i})`).addClass('has');
+		}
+	}
+	$('#scene-save .has').removeClass('has');
+	for (let i in scenes) {
+		if (scenes[i][cues[i]] && scenes[i][cues[i]].length > 0) {
+			$(`#scene-save .button:eq(${i})`).addClass('has');
+		}
+	}
+}
+
 function copy(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
 function hslToRgb(h, s, l) {
-  var r, g, b;
-  if (s == 0) {
-    r = g = b = l; // achromatic
-  } else {
+	var r, g, b;
+	if (s == 0) {
+		r = g = b = l; // achromatic
+	} else {
 		var hue2rgb = function hue2rgb(p, q, t) {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
 			if (t < 1 / 6) return p + (q - p) * 6 * t;
 			if (t < 1 / 2) return q;
 			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    }
-    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    var p = 2 * l - q;
+			return p;
+		}
+		var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		var p = 2 * l - q;
 		r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
+		g = hue2rgb(p, q, h);
 		b = hue2rgb(p, q, h - 1 / 3);
-  }
+	}
 
 	return {
 		red: Math.round(r * 255),
