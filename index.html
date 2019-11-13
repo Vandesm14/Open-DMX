@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width">
 		<title>DMX Console</title>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 	</head>
+
 	<body>
 		<div class="app">
 			<div class="viewport">
@@ -25,12 +27,18 @@
 				</div>
 			</div>
 			<div class="editor">
+			<div class="buttons" id="fixture-tools">
+				<button class="button" id="select-all">Select All</button>
+				<button class="button" id="select-none">Select None</button>
+				<button class="button" id="select-active">Select Active</button>
+				<button class="button" id="dmx-dbo">Darken All</button>
+			</div>
 				<div class="labels">
-					<p class="attrLabel">Hue</p>
-					<p class="attrLabel">Saturation</p>
-					<p class="attrLabel">Brightness</p>
-					<p class="attrLabel">N/A</p>
-					<p class="attrLabel">N/A</p>
+				<p class="label">Hue</p>
+				<p class="label">Saturation</p>
+				<p class="label">Brightness</p>
+				<p class="label">N/A</p>
+				<p class="label">N/A</p>
 				</div>
 				<div class="sliders" id="attr">
 					<div class="slider-container">
@@ -49,6 +57,8 @@
 						<input type="range" class="slider" value="0" min="0" max="100" step="1">
 					</div>
 				</div>
+			<div class="playback">
+				<div class="scenes">
 				<div class="buttons" id="cue-up">
 					<button class="button">🡅</button>
 					<button class="button">🡅</button>
@@ -58,7 +68,21 @@
 					<button class="button">🡅</button>
 					<button class="button">🡅</button>
 					<button class="button">🡅</button>
+						<button class="button">🡅</button>
+						<button class="button">🡅</button>
 				</div>
+					<div class="labels" id="scene-cue">
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+						<p class="label">1/1</p>
+					</div>
 				<div class="buttons" id="cue-down">
 					<button class="button">🡇</button>
 					<button class="button">🡇</button>
@@ -68,7 +92,22 @@
 					<button class="button">🡇</button>
 					<button class="button">🡇</button>
 					<button class="button">🡇</button>
+						<button class="button">🡇</button>
+						<button class="button">🡇</button>
+					</div>
 				</div>
+					<div class="buttons" id="scene-save">
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+						<button class="button"></button>
+					</div>
 				<div class="sliders" id="scene">
 					<div class="slider-container">
 						<input type="range" class="slider" value="0" min="0" max="100" step="1">
@@ -94,8 +133,14 @@
 					<div class="slider-container">
 						<input type="range" class="slider" value="0" min="0" max="100" step="1">
 					</div>
+						<div class="slider-container">
+							<input type="range" class="slider" value="0" min="0" max="100" step="1">
 				</div>
-				<div class="buttons" id="scene-save">
+						<div class="slider-container">
+							<input type="range" class="slider" value="0" min="0" max="100" step="1">
+						</div>
+					</div>
+				</div>
 					<button class="button"></button>
 					<button class="button"></button>
 					<button class="button"></button>
@@ -120,4 +165,5 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="script.js"></script>
 	</body>
+
 </html>

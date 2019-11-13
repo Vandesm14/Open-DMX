@@ -1,7 +1,3 @@
-* {
-	/* outline: 1px solid red; */
-}
-
 html, body, .site, .app {
 	margin: 0;
 	padding: 0;
@@ -29,6 +25,11 @@ a, a:visited {
 	display: flex;
 	overflow: hidden;
 	flex-direction: column;
+}
+
+/* ----------Globals---------- */
+input, select {
+	outline: none;
 }
 
 /* ----------Viewport---------- */
@@ -62,33 +63,35 @@ a, a:visited {
 }
 
 /* ----------Editor---------- */
-.controls, .labels, .sliders, .buttons {
+.controls, .labels, .sliders, .buttons, .dropdowns {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
-	padding: 10px;
+	padding: 1vh;
 	width: calc(100% - 20px);
 
 	user-select: none;
+}
+
+
+
+#fixture-tools > button, .dropdown {
+	width: max-content;
+	border-radius: 5px;
 }
 
 .labels > p {
 	font-size: 20px;
 }
 
-.attrLabel, .slider-container, .button-container, .fixtureLabel {
-	/* flex: 1; */
-	justify-content: center;
-	text-align: center;
-}
 
-.sliders {
-	/* height: 30vh; */
-}
+
+
 
 .slider-container {
-	/* width: max-content; */
-	max-width: 14px;
+	flex: 1;
+	max-width: 30px;
+	width: max-content;
 	height: 20vh;
 }
 
@@ -97,7 +100,7 @@ a, a:visited {
 	height: 10px;
 	outline: none;
 	background-color: rgb(43, 43, 43);
-	transform: rotate(-90deg) translateX(-8vh) translateY(-9vh);
+	transform: rotate(-90deg) translateX(-8.4vh) translateY(-8.4vh);
 
 	-webkit-appearance: none;
 }
@@ -110,9 +113,21 @@ a, a:visited {
 	-webkit-appearance: none;
 }
 
-/* #attr .slider {
-	width: 20vh
-} */
+.playback {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.scenes {
+	margin: 0 auto;
+	width: 70%;
+}
+
+.effects {
+	margin: auto auto;
+	width: 30%;
+}
 
 .button-container {
 	justify-content: center;

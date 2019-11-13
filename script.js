@@ -36,7 +36,7 @@ $(document).ready(function () {
 	$('#scene .slider').each(function () {
 		play.push(false);
 		cues.push(0);
-		scenes.push([[]]);
+		scenes.push([]);
 	});
 
 	/* --------Listeners-------- */
@@ -57,6 +57,28 @@ $(document).ready(function () {
 	$('.fixture').on('dblclick', function () {
 		$('.fixture').prop('checked', false);
 		select = [];
+	});
+
+	$('#fixture-tools #select-none').on('click', function () {
+		$('.fixture').prop('checked', false);
+		select = [];
+	});
+
+	$('#fixture-tools #select-all').on('click', function () {
+		$('.fixture').prop('checked', true);
+		select = [];
+		for (let i in fixtures) {
+			select.push(fixtures[i].addr);
+		}
+	});
+
+	$('#fixture-tools #dmx-dbo').on('click', function () {
+		for (let i in tofx) {
+			for (let k in properties) {
+				tofx[i].dmx[properties[k]] = 0;
+			}
+		}
+		setFX(0.2);
 	});
 
 	$('#attr .slider').on('input', function () {
@@ -90,13 +112,21 @@ $(document).ready(function () {
 		}
 	});
 
-	$('#scene-save .button').on('click', function () {
-		scenes[$(this).index()][cues[$(this).index()]] = copy(fixtures.filter((el, i) => select.includes(i)));
-		$(this).addClass('saved');
-		updateButtons();
-		setTimeout(function () {
-			$('.saved').removeClass('saved');
-		}, 300);
+	$('#scene-save .button').on('click', function (e) {
+		if (e.shiftKey) {
+			scenes[$(this).index()] = [];
+		} else {
+			scenes[$(this).index()][cues[$(this).index()]] = copy(fixtures.filter((el, i) => select.includes(i)));
+			$(this).addClass('saved');
+			updateButtons();
+			setTimeout(function () {
+				$('.saved').removeClass('saved');
+			}, 300);
+		}
+	});
+
+	$('#scene-save .button').on('dblclick', function () {
+		scenes[$(this).index()][cues[$(this).index()]] = [];
 	});
 
 	$('#scene .slider').on('input', function () {
@@ -188,7 +218,7 @@ function setFX(time) {
 function updateButtons() {
 	$('#cue-up .has, #cue-down .has').removeClass('has');
 	$('#scene-save .has').removeClass('has');
-	for(let i in scenes) {
+	for (let i in scenes) {
 		if (scenes[i][cues[i] + 1] && scenes[i][cues[i] + 1].length > 0) {
 			$(`#cue-up .button:eq(${i})`).addClass('has');
 		}
@@ -198,7 +228,7 @@ function updateButtons() {
 		if (scenes[i][cues[i]] && scenes[i][cues[i]].length > 0) {
 			$(`#scene-save .button:eq(${i})`).addClass('has');
 		}
-		$(`#scene-cue .label:eq(${i})`).text(`Cue: ${cues[i] + 1}/${(cues[i] + 1) > scenes[i].length ? cues[i] + 1 : scenes[i].length}`);
+		$(`#scene-cue .label:eq(${i})`).text(`${cues[i] + 1}/${(cues[i] + 1) > scenes[i].length ? cues[i] + 1 : scenes[i].length}`);
 	}
 }
 
