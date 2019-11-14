@@ -139,7 +139,6 @@ $(document).ready(function () {
 	$('#scene-group .dropdown').on('change', function () {
 		$('#scene-group .dropdown').each(function () {
 			fxgroups[$(this).index()] = $(this).val();
-			// setFXA();
 		});
 	});
 
@@ -261,7 +260,6 @@ function setFXA() {
 		for (let i in scenes) {
 			if (play[i] && fxgroups[i] === 'A') {
 				for (let k in scenes[i][fxAcue % scenes[i].length]) {
-					// let fixture = tofxA.find(el => el.addr === scenes[i][fxAcue % scenes[i].length][k].addr);
 					let fixture = tofade.find(el => el.addr === scenes[i][fxAcue % scenes[i].length][k].addr);
 					for (let j in properties) {
 						fixture.dmx[properties[j]] = scenes[i][fxAcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100);
