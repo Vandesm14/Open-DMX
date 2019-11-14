@@ -49,8 +49,10 @@ $(document).ready(function () {
 				select.push($(this).data('addr'));
 			}
 		});
-		for (let i in fixtures[id].hsl) {
-			$(`#attr .slider:eq(${i})`).val(fixtures[id].hsl[i] * 100);
+		if (Object.keys(fixtures[id].dmx).every(el => fixtures[id].dmx[el] !== 0)) {
+			for (let i in fixtures[id].hsl) {
+				$(`#attr .slider:eq(${i})`).val(fixtures[id].hsl[i] * 100);
+			}
 		}
 	});
 
