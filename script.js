@@ -8,11 +8,27 @@ var values = [];
 var play = [];
 var priority = 0;
 
-var fxinterval = 0;
-var fxtime = 0;
-var fxspeed = 0;
-var tofx = [];
-var fromfx = [];
+var fadeinterval = 0;
+var fadetime = 0; // Accumulator
+var fadespeed = 0; // Actual Speed Variable
+var tofade = [];
+var fromfade = [];
+
+var fxgroups = [];
+
+var fxAinterval = 0;
+var fxAtime = 0; // Accumulator
+var fxAspeed = 0; // Actual Speed Variable
+var tofxA = [];
+var fromfxA = [];
+var fxAcue = 0;
+
+var fxBinterval = 0;
+var fxBtime = 0; // Accumulator
+var fxBspeed = 0; // Actual Speed Variable
+var tofxB = [];
+var fromfxB = [];
+var fxBcue = 0;
 
 class Fixture {
 	constructor(id) {
@@ -31,7 +47,8 @@ $(document).ready(function () {
 		$(this).attr('data-addr', fixtures.length);
 		fixtures.push(new Fixture(fixtures.length));
 	});
-	tofx = copy(fixtures);
+	tofade = copy(fixtures);
+	tofxA = copy(fixtures);
 
 	$('#scene .slider').each(function () {
 		play.push(false);
@@ -40,7 +57,13 @@ $(document).ready(function () {
 	});
 
 	/* --------Listeners-------- */
-	$('.fixture').on('click', function () {
+	$('.viewport').on('click', function () {
+		$('.fixture').prop('checked', false);
+		select = [];
+	});
+
+	$('.fixture').on('click', function (e) {
+		e.stopPropagation();
 		let self = $(this);
 		let id = self.data('addr');
 		select = [];
@@ -49,14 +72,15 @@ $(document).ready(function () {
 				select.push($(this).data('addr'));
 			}
 		});
-		if (Object.keys(fixtures[id].dmx).every(el => fixtures[id].dmx[el] !== 0)) {
+		if (Object.keys(fixtures[id].dmx).every(el => fixtures[id].dmx[el] > 0)) {
 			for (let i in fixtures[id].hsl) {
 				$(`#attr .slider:eq(${i})`).val(fixtures[id].hsl[i] * 100);
 			}
 		}
 	});
 
-	$('.fixture').on('dblclick', function () {
+	$('.fixture').on('dblclick', function (e) {
+		e.stopPropagation();
 		$('.fixture').prop('checked', false);
 		select = [];
 	});
@@ -75,29 +99,29 @@ $(document).ready(function () {
 	});
 
 	$('#fixture-tools #dmx-dbo').on('click', function () {
-		for (let i in tofx) {
+		for (let i in tofade) {
 			for (let k in properties) {
-				tofx[i].dmx[properties[k]] = 0;
+				tofade[i].dmx[properties[k]] = 0;
 			}
 		}
-		setFX(0.2);
+		setFade(0.2);
 	});
 
 	$('#attr .slider').on('input', function () {
-		for (let i in tofx) {
-			if (select.includes(tofx[i].addr)) {
+		for (let i in tofade) {
+			if (select.includes(tofade[i].addr)) {
 				let hsl = [];
 				for (let k in properties) {
-					tofx[i].dmx[properties[k]] = parseInt($(`#attr .slider:eq(${k})`).val()) / 100;
+					tofade[i].dmx[properties[k]] = parseInt($(`#attr .slider:eq(${k})`).val()) / 100;
 					hsl.push(parseInt($(`#attr .slider:eq(${k})`).val()) / 100);
 				}
-				tofx[i].hsl = copy(hsl);
+				tofade[i].hsl = copy(hsl);
 				let rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
 				Object.keys(rgb).forEach(el => rgb[el] /= 255);
-				tofx[i].dmx = copy(rgb);
+				tofade[i].dmx = copy(rgb);
 			}
 		}
-		setFX(0.2);
+		setFade(0.2);
 	});
 
 	$('#cue-up .button').on('click', function () {
@@ -112,6 +136,13 @@ $(document).ready(function () {
 			updateButtons();
 			updateScenes();
 		}
+	});
+
+	$('#scene-group .dropdown').on('change', function () {
+		$('#scene-group .dropdown').each(function () {
+			fxgroups[$(this).index()] = $(this).val();
+			// setFXA();
+		});
 	});
 
 	$('#scene-save .button').on('click', function (e) {
@@ -154,6 +185,11 @@ $(document).ready(function () {
 		});
 		updateScenes();
 	});
+
+	$('#effect .slider').on('input', function () {
+		fxAspeed = parseInt($('#effect .slider:eq(0)').val()) / 50;
+		setFXA();
+	});
 });
 
 function updateFixtures() {
@@ -167,7 +203,7 @@ function updateScenes() {
 	for (let i in scenes) {
 		if (play[i] && i !== priority) {
 			for (let k in scenes[i][cues[i]]) {
-				let fixture = tofx.find(el => el.addr === scenes[i][cues[i]][k].addr);
+				let fixture = tofade.find(el => el.addr === scenes[i][cues[i]][k].addr);
 				for (let j in properties) {
 					fixture.dmx[properties[j]] = scenes[i][cues[i]][k].dmx[properties[j]] * (values[i] / 100);
 				}
@@ -184,38 +220,67 @@ function updateScenes() {
 		}
 	}
 	for (let k in scenes[priority][cues[priority]]) {
-		let fixture = tofx.find(el => el.addr === scenes[priority][cues[priority]][k].addr);
+		let fixture = tofade.find(el => el.addr === scenes[priority][cues[priority]][k].addr);
 		for (let j in properties) {
 			fixture.dmx[properties[j]] = scenes[priority][cues[priority]][k].dmx[properties[j]] * (values[priority] / 100);
 		}
 	}
 	if (fade) {
-		setFX(0.2);
+		setFade(0.2);
 	} else {
-		setFX(0.2);
+		setFade(0.2);
 	}
 }
 
-function setFX(time) {
-	fromfx = copy(fixtures);
-	fxtime = time * 100;
-	fxspeed = fxtime;
-	clearInterval(fxinterval);
-	fxinterval = setInterval(function () {
-		if (fxtime > 0) {
+function setFade(time) {
+	fromfade = copy(fixtures);
+	fadetime = time * 100;
+	fadespeed = fadetime;
+	clearInterval(fadeinterval);
+	fadeinterval = setInterval(function () {
+		if (fadetime > 0) {
 			for (let i in fixtures) {
 				for (let k in properties) {
-					fixtures[i].dmx[properties[k]] = fromfx[i].dmx[properties[k]] + (tofx[i].dmx[properties[k]] - fromfx[i].dmx[properties[k]]) * (fxspeed - fxtime) / fxspeed;
+					fixtures[i].dmx[properties[k]] = fromfade[i].dmx[properties[k]] + (tofade[i].dmx[properties[k]] - fromfade[i].dmx[properties[k]]) * (fadespeed - fadetime) / fadespeed;
 				}
 			}
-			fxtime -= 1;
+			fadetime -= 1;
 		} else {
-			clearInterval(fxinterval);
-			fixtures = copy(tofx);
+			clearInterval(fadeinterval);
+			fixtures = copy(tofade);
 		}
 		updateFixtures();
 	}, 10);
 }
+
+function setFXA() {
+	fromfxA = copy(fixtures);
+	fxAcue = 0;
+	clearInterval(fxAinterval);
+	fxAinterval = setInterval(function () {
+		fxAcue++;
+		for (let i in scenes) {
+			if (play[i] && fxgroups[i] === 'A') {
+				for (let k in scenes[i][fxAcue % scenes[i].length]) {
+					// let fixture = tofxA.find(el => el.addr === scenes[i][fxAcue % scenes[i].length][k].addr);
+					let fixture = tofade.find(el => el.addr === scenes[i][fxAcue % scenes[i].length][k].addr);
+					for (let j in properties) {
+						fixture.dmx[properties[j]] = scenes[i][fxAcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100);
+					}
+				}
+			}
+		}
+		for (let i in play) {
+			if (play[i] === 'down') {
+				play[i] = false;
+			} else if (play[i] === 'up') {
+				play[i] = true;
+			}
+		}
+		setFade(fxAspeed);
+	}, fxAspeed * 1000);
+}
+
 
 function updateButtons() {
 	$('#cue-up .has, #cue-down .has').removeClass('has');
@@ -250,7 +315,7 @@ function hslToRgb(h, s, l) {
 			if (t < 1 / 2) return q;
 			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
 			return p;
-		}
+		};
 		let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		let p = 2 * l - q;
 		r = hue2rgb(p, q, h + 1 / 3);
