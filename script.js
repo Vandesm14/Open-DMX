@@ -17,14 +17,12 @@ var fromfade = [];
 var fxgroups = [];
 
 var fxAinterval = 0;
-var fxAtime = 0; // Accumulator
 var fxAspeed = 0; // Actual Speed Variable
 var tofxA = [];
 var fromfxA = [];
 var fxAcue = 0;
 
 var fxBinterval = 0;
-var fxBtime = 0; // Accumulator
 var fxBspeed = 0; // Actual Speed Variable
 var tofxB = [];
 var fromfxB = [];
@@ -189,6 +187,8 @@ $(document).ready(function () {
 	$('#effect .slider').on('input', function () {
 		fxAspeed = parseInt($('#effect .slider:eq(0)').val()) / 50;
 		setFXA();
+		fxBspeed = parseInt($('#effect .slider:eq(1)').val()) / 50;
+		setFXB();
 	});
 });
 
@@ -254,7 +254,6 @@ function setFade(time) {
 }
 
 function setFXA() {
-	fromfxA = copy(fixtures);
 	fxAcue = 0;
 	clearInterval(fxAinterval);
 	fxAinterval = setInterval(function () {
@@ -281,6 +280,31 @@ function setFXA() {
 	}, fxAspeed * 1000);
 }
 
+function setFXB() {
+	fxBcue = 0;
+	clearInterval(fxBinterval);
+	fxBinterval = setInterval(function () {
+		fxBcue++;
+		for (let i in scenes) {
+			if (play[i] && fxgroups[i] === 'B') {
+				for (let k in scenes[i][fxBcue % scenes[i].length]) {
+					let fixture = tofade.find(el => el.addr === scenes[i][fxBcue % scenes[i].length][k].addr);
+					for (let j in properties) {
+						fixture.dmx[properties[j]] = scenes[i][fxBcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100);
+					}
+				}
+			}
+		}
+		for (let i in play) {
+			if (play[i] === 'down') {
+				play[i] = false;
+			} else if (play[i] === 'up') {
+				play[i] = true;
+			}
+		}
+		setFade(fxBspeed);
+	}, fxBspeed * 1000);
+}
 
 function updateButtons() {
 	$('#cue-up .has, #cue-down .has').removeClass('has');
