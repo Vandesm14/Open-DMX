@@ -45,7 +45,7 @@ $(document).ready(function () {
 		$(this).attr('data-addr', fixtures.length);
 		fixtures.push(new Fixture(fixtures.length));
 	});
-	tofade = copy(fixtures);
+	tofx = copy(fixtures);
 	tofxA = copy(fixtures);
 
 	$('#scene .slider').each(function () {
@@ -96,6 +96,15 @@ $(document).ready(function () {
 		}
 	});
 
+	$('#fixture-tools #select-active').on('click', function () {
+		$('.fixture').prop('checked', false);
+		$('.fixture').each(function () {
+			if (Object.keys(fixtures[$(this).index()].dmx).every(el => fixtures[$(this).index()].dmx[el] > 0)) {
+				$(this).prop('checked', true);
+			}
+		});
+	});
+
 	$('#fixture-tools #dmx-dbo').on('click', function () {
 		for (let i in tofade) {
 			for (let k in properties) {
@@ -106,17 +115,19 @@ $(document).ready(function () {
 	});
 
 	$('#attr .slider').on('input', function () {
-		for (let i in tofade) {
-			if (select.includes(tofade[i].addr)) {
-				let hsl = [];
-				for (let k in properties) {
-					tofade[i].dmx[properties[k]] = parseInt($(`#attr .slider:eq(${k})`).val()) / 100;
-					hsl.push(parseInt($(`#attr .slider:eq(${k})`).val()) / 100);
-				}
-				tofade[i].hsl = copy(hsl);
-				let rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
-				Object.keys(rgb).forEach(el => rgb[el] /= 255);
-				tofade[i].dmx = copy(rgb);
+		for (let i in select) {
+			let fixture = tofade.find(el => el.addr === fixtures[select[i]].addr) || new Fixture(fixtures[select[i]].addr);
+			let hsl = [];
+			for (let k in properties) {
+				fixture.dmx[properties[k]] = parseInt($(`#attr .slider:eq(${k})`).val()) / 100;
+				hsl.push(parseInt($(`#attr .slider:eq(${k})`).val()) / 100);
+			}
+			fixture.hsl = copy(hsl);
+			let rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
+			Object.keys(rgb).forEach(el => rgb[el] /= 255);
+			fixture.dmx = copy(rgb);
+			if (!tofade.find(el => el.addr === fixtures[select[i]].addr)) {
+				tofade.push(fixtures[select[i]]);
 			}
 		}
 		setFade(0.2);
@@ -156,7 +167,7 @@ $(document).ready(function () {
 	});
 
 	$('#scene-save .button').on('dblclick', function () {
-		scenes[$(this).index()][cues[$(this).index()]] = [];
+		scenes[$(this).index()][cues[$(this).index()]] = []; // TODO: Doesn't remove array entry, only clears it
 	});
 
 	$('#scene .slider').on('input', function () {
@@ -185,9 +196,9 @@ $(document).ready(function () {
 
 	$('#effect .slider').on('input', function () {
 		fxAspeed = parseInt($('#effect .slider:eq(0)').val()) / 50;
-		setFXA();
+		// setFXA();
 		fxBspeed = parseInt($('#effect .slider:eq(1)').val()) / 50;
-		setFXB();
+		// setFXB();
 	});
 });
 
@@ -198,37 +209,38 @@ function updateFixtures() {
 }
 
 function updateScenes() {
-	let fade = false;
+	tofade = [];
 	for (let i in scenes) {
 		if (play[i] && i !== priority) {
 			for (let k in scenes[i][cues[i]]) {
-				let fixture = tofade.find(el => el.addr === scenes[i][cues[i]][k].addr);
+				let fixture = tofade.find(el => el.addr === scenes[i][cues[i]][k].addr) || new Fixture(scenes[i][cues[i]][k].addr);
 				for (let j in properties) {
-					fixture.dmx[properties[j]] = scenes[i][cues[i]][k].dmx[properties[j]] * (values[i] / 100);
+					fixture.dmx[properties[j]] = copy(scenes[i][cues[i]][k].dmx[properties[j]] * (values[i] / 100));
+				}
+				if (!tofade.find(el => el.addr === scenes[i][cues[i]][k].addr)) {
+					tofade.push(scenes[i][cues[i]][k]);
 				}
 			}
 		}
 	}
 	for (let i in play) {
 		if (play[i] === 'down') {
-			fade = true;
 			play[i] = false;
 		} else if (play[i] === 'up') {
-			fade = true;
 			play[i] = true;
 		}
 	}
 	for (let k in scenes[priority][cues[priority]]) {
 		let fixture = tofade.find(el => el.addr === scenes[priority][cues[priority]][k].addr);
 		for (let j in properties) {
+			console.log('start', scenes[0][0][0].dmx);
+			// FIXME: Line below is causing accumulation issues for scenes[priority] ... [k].dmx
 			fixture.dmx[properties[j]] = scenes[priority][cues[priority]][k].dmx[properties[j]] * (values[priority] / 100);
+			// fixtures[scenes[priority][cues[priority]][k].addr].dmx[properties[j]] = scenes[priority][cues[priority]][k].dmx[properties[j]] * (values[priority] / 100);
+			console.log('end', scenes[0][0][0].dmx);
 		}
 	}
-	if (fade) {
-		setFade(0.2);
-	} else {
-		setFade(0.2);
-	}
+	setFade(0.2);
 }
 
 function setFade(time) {
@@ -236,17 +248,48 @@ function setFade(time) {
 	fadetime = time * 100;
 	fadespeed = fadetime;
 	clearInterval(fadeinterval);
-	fadeinterval = setInterval(function () {
-		if (fadetime > 0) {
-			for (let i in fixtures) {
+	fadeinterval = setInterval(function () { runFade(copy(tofade)) }, 10);
+}
+
+function runFade(stagedfade) {
+	console.log('staged', stagedfade.map(el => el.dmx));
+	if (fadetime > 0) {
+		for (let i in stagedfade) {
+			let fixture = fixtures.find(el => el.addr === stagedfade[i].addr);
+			let fromfixture = fromfade.find(el => el.addr === stagedfade[i].addr);
+			for (let k in properties) {
+				fixture.dmx[properties[k]] = fromfixture.dmx[properties[k]] + (fixture.dmx[properties[k]] - fromfixture.dmx[properties[k]]) * linearToSin((fadespeed - fadetime) / fadespeed);
+			}
+		}
+		console.log('staged-end', stagedfade.map(el => el.dmx));
+		fadetime -= 1;
+	} else {
+		clearInterval(fadeinterval);
+		for (let i in stagedfade) {
+			fixtures.find(el => el.addr === stagedfade[i].addr).dmx = stagedfade[i].dmx; // overwrite fixtures if tiemr hits the end
+		}
+	}
+	updateFixtures();
+}
+
+function setFadeA(time) {
+	fromfxA = copy(fixtures);
+	fxAtime = time * 100;
+	fxAspeed = fxAtime;
+	clearInterval(fxAinterval);
+	fxAinterval = setInterval(function () {
+		if (fxAtime > 0) {
+			for (let i in tofxA) {
+				let fixture = tofxA.find(el => el.addr === tofade[i].addr);
+				let fromfixture = fromfxA.find(el => el.addr === tofade[i].addr);
 				for (let k in properties) {
-					fixtures[i].dmx[properties[k]] = fromfade[i].dmx[properties[k]] + (tofade[i].dmx[properties[k]] - fromfade[i].dmx[properties[k]]) * (fadespeed - fadetime) / fadespeed;
+					fixture.dmx[properties[k]] = fromfixture.dmx[properties[k]] + (fixture.dmx[properties[k]] - fromfixture.dmx[properties[k]]) * (fxAspeed - fxAtime) / fxAspeed;
 				}
 			}
-			fadetime -= 1;
+			fxAtime -= 1;
 		} else {
-			clearInterval(fadeinterval);
-			fixtures = copy(tofade);
+			clearInterval(fxAinterval);
+			fixtures = copy(tofxA);
 		}
 		updateFixtures();
 	}, 10);
@@ -260,9 +303,9 @@ function setFXA() {
 		for (let i in scenes) {
 			if (play[i] && fxgroups[i] === 'A') {
 				for (let k in scenes[i][fxAcue % scenes[i].length]) {
-					let fixture = tofade.find(el => el.addr === scenes[i][fxAcue % scenes[i].length][k].addr);
+					let fixture = tofxA.find(el => el.addr === scenes[i][fxAcue % scenes[i].length][k].addr);
 					for (let j in properties) {
-						fixture.dmx[properties[j]] = scenes[i][fxAcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100);
+						fixture.dmx[properties[j]] = copy(scenes[i][fxAcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100));
 					}
 				}
 			}
@@ -274,7 +317,7 @@ function setFXA() {
 				play[i] = true;
 			}
 		}
-		setFade(fxAspeed);
+		setFadeA(fxAspeed);
 	}, fxAspeed * 1000);
 }
 
@@ -288,7 +331,7 @@ function setFXB() {
 				for (let k in scenes[i][fxBcue % scenes[i].length]) {
 					let fixture = tofade.find(el => el.addr === scenes[i][fxBcue % scenes[i].length][k].addr);
 					for (let j in properties) {
-						fixture.dmx[properties[j]] = scenes[i][fxBcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100);
+						fixture.dmx[properties[j]] = copy(scenes[i][fxBcue % scenes[i].length][k].dmx[properties[j]] * (values[i] / 100));
 					}
 				}
 			}
@@ -349,4 +392,11 @@ function hslToRgb(h, s, l) {
 		green: Math.round(g * 255),
 		blue: Math.round(b * 255)
 	};
+}
+
+function linearToSin(linear) {
+	let pi = Math.PI;
+	// return 0.5 * Math.sin(pi * linear - pi * 0.5) + 0.5;
+	// return Math.sin(pi * linear / 2);
+	return linear;
 }
