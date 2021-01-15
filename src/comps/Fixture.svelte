@@ -9,12 +9,12 @@
 			fixture.selected = !fixture.selected;
 		} else if (e.shiftKey) {
 			if (last !== null) {
-				if (fixture.addr >= last) {
-					for (let i = last; i <= fixture.addr; i++) {
+				if (fixture.id >= last) {
+					for (let i = last; i <= fixture.id; i++) {
 						$fixtureData[i].selected = true;
 					}
 				} else {
-					for (let i = last; i >= fixture.addr; i--) {
+					for (let i = last; i >= fixture.id; i--) {
 						$fixtureData[i].selected = true;
 					}
 				}
@@ -27,11 +27,11 @@
 				return {...el, selected: false};
 			});
 			if (!fixture.selected || len > 1) {
-				$fixtureData.find(el => el.addr === fixture.addr).selected = true;
+				$fixtureData.find(el => el.id === fixture.id).selected = true;
 			}
 		}
 
-		$selection.last = {from: 'veiwer', id: fixture.addr};
+		$selection.last = {from: 'veiwer', id: fixture.id};
 	};
 </script>
 

@@ -460,11 +460,11 @@ var index = (function () {
     }
 
     const fixtureData = writable([
-    	{r: 0, g: 0, b: 0, addr: 0},
-    	{r: 255, g: 0, b: 0, addr: 1},
-    	{r: 255, g: 128, b: 0, addr: 2},
-    	{r: 0, g: 255, b: 0, addr: 3},
-    	{r: 0, g: 0, b: 255, addr: 4}
+    	{r: 0, g: 0, b: 0, id: 0},
+    	{r: 255, g: 0, b: 0, id: 1},
+    	{r: 255, g: 128, b: 0, id: 2},
+    	{r: 0, g: 255, b: 0, id: 3},
+    	{r: 0, g: 0, b: 255, id: 4}
     ]);
     const selection = writable({
     	last: null
@@ -484,7 +484,7 @@ var index = (function () {
     			div = element("div");
     			attr_dev(div, "class", div_class_value = "" + (null_to_empty(/*fixture*/ ctx[0].selected ? "selected" : "") + " svelte-1kpynea"));
     			set_style(div, "background-color", "rgb(" + /*fixture*/ ctx[0].r + ", " + /*fixture*/ ctx[0].g + ", " + /*fixture*/ ctx[0].b + ")");
-    			add_location(div, file, 51, 0, 1127);
+    			add_location(div, file, 51, 0, 1115);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -544,12 +544,12 @@ var index = (function () {
     			$$invalidate(0, fixture.selected = !fixture.selected, fixture);
     		} else if (e.shiftKey) {
     			if (last !== null) {
-    				if (fixture.addr >= last) {
-    					for (let i = last; i <= fixture.addr; i++) {
+    				if (fixture.id >= last) {
+    					for (let i = last; i <= fixture.id; i++) {
     						set_store_value(fixtureData, $fixtureData[i].selected = true, $fixtureData);
     					}
     				} else {
-    					for (let i = last; i >= fixture.addr; i--) {
+    					for (let i = last; i >= fixture.id; i--) {
     						set_store_value(fixtureData, $fixtureData[i].selected = true, $fixtureData);
     					}
     				}
@@ -568,11 +568,11 @@ var index = (function () {
     			);
 
     			if (!fixture.selected || len > 1) {
-    				$fixtureData.find(el => el.addr === fixture.addr).selected = true;
+    				$fixtureData.find(el => el.id === fixture.id).selected = true;
     			}
     		}
 
-    		set_store_value(selection, $selection.last = { from: "veiwer", id: fixture.addr }, $selection);
+    		set_store_value(selection, $selection.last = { from: "veiwer", id: fixture.id }, $selection);
     	};
 
     	const writable_props = ["fixture"];
