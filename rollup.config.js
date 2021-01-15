@@ -47,7 +47,7 @@ for(let page of pages) {
         format: "iife"
       },
       plugins: [
-        svelte({ compilerOptions: { dev } }),
+        svelte({ compilerOptions: { dev: true } }),
         css({ output: `${page}.css` }),
         resolve({ browser: true, dedupe: ["svelte"] }),
         commonjs(),
