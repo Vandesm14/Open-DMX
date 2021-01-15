@@ -7,8 +7,6 @@ export const fixtureData = writable([
 	{r: 0, g: 255, b: 0, addr: 4},
 	{r: 0, g: 0, b: 255, addr: 5}
 ]);
-export const selections = writable({
-	viewer: [],
-	lists: [],
-	console: [],
+export const selection = writable({
+	last: null
 });

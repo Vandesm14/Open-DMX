@@ -1,18 +1,22 @@
 <script>
 	import { convertToRGB } from './lib.js';
-	import { fixtureData, selections } from './stores.js';
+	import { fixtureData, selection } from './stores.js';
 	import Fixture from './comps/Fixture.svelte';
 
 	const select = (e) => {
 		if (e.target !== e.currentTarget || e.ctrlKey) return;
-		$selections.viewer = [];
-		console.log('click event');
+		$fixtureData = $fixtureData.map(el => {
+			return {...el, selected: false};
+		});
 	};
 
 	const changeColor = (e) => {
-		let rgb = convertToRGB(e.target.value);
-		$selections.viewer = $selections.viewer.map(el => {
-			return {...el, ...rgb};
+		$fixtureData = $fixtureData.map(el => {
+			if (el.selected) {
+				return {...el, ...convertToRGB(e.target.value)};
+			} else {
+				return el;
+			}
 		});
 	};
 </script>
@@ -31,5 +35,5 @@
 	{/each}
 </div>
 <div>
-	<input id="input" data-jscolor="{{value: '#FFDCA3'}}" on:input={changeColor}>
+	<input id="input" data-jscolor={"{value: '#FF0000'}"} on:input={changeColor}>
 </div>

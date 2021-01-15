@@ -1,26 +1,19 @@
 <script>
-	import { fixtureData, selections } from '../stores.js';
+	import { fixtureData, selection } from '../stores.js';
 	
 	export let fixture = {};
-	$: selected = $selections.viewer.includes(fixture);
 
 	const select = (e) => {
 		if (!e.ctrlKey) {
-			if (!selected) {
-				$selections.viewer = [fixture];
-			} else {
-				if ($selections.viewer.length > 1) {
-					$selections.viewer = [fixture];
-				} else {
-					$selections.viewer = [];
-				}
+			let len = $fixtureData.filter(el => el.selected).length;
+			$fixtureData = $fixtureData.map(el => {
+				return {...el, selected: false};
+			});
+			if (!fixture.selected || len > 1) {
+				$fixtureData.find(el => el.addr === fixture.addr).selected = true;
 			}
 		} else {
-			if (!selected) {
-				$selections.viewer = [...$selections.viewer, fixture];
-			} else {
-				$selections.viewer = $selections.viewer.filter(el => el !== fixture);
-			}
+			fixture.selected = !fixture.selected;
 		}
 	};
 </script>
@@ -39,4 +32,4 @@
 	}
 </style>
 
-<div on:click={select} class={$selections.viewer.includes(fixture) ? 'selected' : ''} style="background-color: rgb({fixture.r}, {fixture.g}, {fixture.b})"></div>
+<div on:click={select} class={fixture.selected ? 'selected' : ''} style="background-color: rgb({fixture.r}, {fixture.g}, {fixture.b})"></div>
