@@ -34,11 +34,11 @@
 
 <style>
 	div {
-		border: 4px solid #6b6980;
-		background-color: black;
+		margin: 10px;
 		width: 50px;
 		height: 50px;
-		margin: 10px;
+		border: 4px solid #6b6980;
+		background-color: black;
 	}
 
 	div.selected {

@@ -17,6 +17,7 @@
     "svelte": "^3.31.0"
   },
   "dependencies": {
+    "hotkeys-js": "^3.8.1",
     "sirv-cli": "^1.0.0"
   }
 }

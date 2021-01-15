@@ -8,5 +8,6 @@ export const fixtureData = writable([
 	{r: 0, g: 0, b: 255, id: 4}
 ]);
 export const selection = writable({
-	last: null
+	last: {from: null, id: null},
+	copy: {type: null, data: null}
 });
