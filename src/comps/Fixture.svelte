@@ -4,7 +4,24 @@
 	export let fixture = {};
 
 	const select = (e) => {
-		if (!e.ctrlKey) {
+		let last = $selection.last?.id;
+		if (e.ctrlKey) {
+			fixture.selected = !fixture.selected;
+		} else if (e.shiftKey) {
+			if (last !== null) {
+				if (fixture.addr >= last) {
+					for (let i = last; i <= fixture.addr; i++) {
+						$fixtureData[i].selected = true;
+					}
+				} else {
+					for (let i = last; i >= fixture.addr; i--) {
+						$fixtureData[i].selected = true;
+					}
+				}
+			}
+
+      $selection.last.id = null;
+		} else {
 			let len = $fixtureData.filter(el => el.selected).length;
 			$fixtureData = $fixtureData.map(el => {
 				return {...el, selected: false};
@@ -12,9 +29,9 @@
 			if (!fixture.selected || len > 1) {
 				$fixtureData.find(el => el.addr === fixture.addr).selected = true;
 			}
-		} else {
-			fixture.selected = !fixture.selected;
 		}
+
+		$selection.last = {from: 'veiwer', id: fixture.addr};
 	};
 </script>
 

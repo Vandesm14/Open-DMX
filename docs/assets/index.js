@@ -460,11 +460,11 @@ var index = (function () {
     }
 
     const fixtureData = writable([
-    	{r: 0, g: 0, b: 0, addr: 1},
-    	{r: 255, g: 0, b: 0, addr: 2},
-    	{r: 255, g: 128, b: 0, addr: 3},
-    	{r: 0, g: 255, b: 0, addr: 4},
-    	{r: 0, g: 0, b: 255, addr: 5}
+    	{r: 0, g: 0, b: 0, addr: 0},
+    	{r: 255, g: 0, b: 0, addr: 1},
+    	{r: 255, g: 128, b: 0, addr: 2},
+    	{r: 0, g: 255, b: 0, addr: 3},
+    	{r: 0, g: 0, b: 255, addr: 4}
     ]);
     const selection = writable({
     	last: null
@@ -484,7 +484,7 @@ var index = (function () {
     			div = element("div");
     			attr_dev(div, "class", div_class_value = "" + (null_to_empty(/*fixture*/ ctx[0].selected ? "selected" : "") + " svelte-1kpynea"));
     			set_style(div, "background-color", "rgb(" + /*fixture*/ ctx[0].r + ", " + /*fixture*/ ctx[0].g + ", " + /*fixture*/ ctx[0].b + ")");
-    			add_location(div, file, 34, 0, 687);
+    			add_location(div, file, 51, 0, 1127);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -527,15 +527,36 @@ var index = (function () {
     }
 
     function instance($$self, $$props, $$invalidate) {
+    	let $selection;
     	let $fixtureData;
+    	validate_store(selection, "selection");
+    	component_subscribe($$self, selection, $$value => $$invalidate(2, $selection = $$value));
     	validate_store(fixtureData, "fixtureData");
-    	component_subscribe($$self, fixtureData, $$value => $$invalidate(2, $fixtureData = $$value));
+    	component_subscribe($$self, fixtureData, $$value => $$invalidate(3, $fixtureData = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("Fixture", slots, []);
     	let { fixture = {} } = $$props;
 
     	const select = e => {
-    		if (!e.ctrlKey) {
+    		let last = $selection.last?.id;
+
+    		if (e.ctrlKey) {
+    			$$invalidate(0, fixture.selected = !fixture.selected, fixture);
+    		} else if (e.shiftKey) {
+    			if (last !== null) {
+    				if (fixture.addr >= last) {
+    					for (let i = last; i <= fixture.addr; i++) {
+    						set_store_value(fixtureData, $fixtureData[i].selected = true, $fixtureData);
+    					}
+    				} else {
+    					for (let i = last; i >= fixture.addr; i--) {
+    						set_store_value(fixtureData, $fixtureData[i].selected = true, $fixtureData);
+    					}
+    				}
+    			}
+
+    			set_store_value(selection, $selection.last.id = null, $selection);
+    		} else {
     			let len = $fixtureData.filter(el => el.selected).length;
 
     			set_store_value(
@@ -549,9 +570,9 @@ var index = (function () {
     			if (!fixture.selected || len > 1) {
     				$fixtureData.find(el => el.addr === fixture.addr).selected = true;
     			}
-    		} else {
-    			$$invalidate(0, fixture.selected = !fixture.selected, fixture);
     		}
+
+    		set_store_value(selection, $selection.last = { from: "veiwer", id: fixture.addr }, $selection);
     	};
 
     	const writable_props = ["fixture"];
@@ -569,6 +590,7 @@ var index = (function () {
     		selection,
     		fixture,
     		select,
+    		$selection,
     		$fixtureData
     	});
 
