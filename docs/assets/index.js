@@ -49,6 +49,10 @@ var index = (function () {
         store.set(value);
         return ret;
     }
+
+    function append(target, node) {
+        target.appendChild(node);
+    }
     function insert(target, node, anchor) {
         target.insertBefore(node, anchor || null);
     }
@@ -63,6 +67,12 @@ var index = (function () {
     }
     function element(name) {
         return document.createElement(name);
+    }
+    function text(data) {
+        return document.createTextNode(data);
+    }
+    function space() {
+        return text(' ');
     }
     function listen(node, event, handler, options) {
         node.addEventListener(event, handler, options);
@@ -191,6 +201,12 @@ var index = (function () {
             block.o(local);
         }
     }
+
+    const globals = (typeof window !== 'undefined'
+        ? window
+        : typeof globalThis !== 'undefined'
+            ? globalThis
+            : global);
     function create_component(block) {
         block && block.c();
     }
@@ -319,6 +335,10 @@ var index = (function () {
     function dispatch_dev(type, detail) {
         document.dispatchEvent(custom_event(type, Object.assign({ version: '3.31.0' }, detail)));
     }
+    function append_dev(target, node) {
+        dispatch_dev('SvelteDOMInsert', { target, node });
+        append(target, node);
+    }
     function insert_dev(target, node, anchor) {
         dispatch_dev('SvelteDOMInsert', { target, node, anchor });
         insert(target, node, anchor);
@@ -383,6 +403,16 @@ var index = (function () {
         $inject_state() { }
     }
 
+    const convertToRGB = function (str) {
+    	let aRgbHex = str.replace('#', '').match(/.{1,2}/g);
+    	let aRgb = {
+    		r: parseInt(aRgbHex[0], 16),
+    		g: parseInt(aRgbHex[1], 16),
+    		b: parseInt(aRgbHex[2], 16)
+    	};
+    	return aRgb;
+    };
+
     const subscriber_queue = [];
     /**
      * Create a `Writable` store that allows both updating and reading by subscription.
@@ -435,7 +465,13 @@ var index = (function () {
         return { set, update, subscribe };
     }
 
-    const fixtureData = writable([{r: 0, g: 0, b: 0, addr: 1}, {r: 255, g: 0, b: 0, addr: 2}]);
+    const fixtureData = writable([
+    	{r: 0, g: 0, b: 0, addr: 1},
+    	{r: 255, g: 0, b: 0, addr: 2},
+    	{r: 255, g: 128, b: 0, addr: 3},
+    	{r: 0, g: 255, b: 0, addr: 4},
+    	{r: 0, g: 0, b: 255, addr: 5}
+    ]);
     const selections = writable({
     	viewer: [],
     	lists: [],
@@ -457,10 +493,10 @@ var index = (function () {
 
     			attr_dev(div, "class", div_class_value = "" + (null_to_empty(/*$selections*/ ctx[1].viewer.includes(/*fixture*/ ctx[0])
     			? "selected"
-    			: "") + " svelte-1kcskld"));
+    			: "") + " svelte-1kpynea"));
 
     			set_style(div, "background-color", "rgb(" + /*fixture*/ ctx[0].r + ", " + /*fixture*/ ctx[0].g + ", " + /*fixture*/ ctx[0].b + ")");
-    			add_location(div, file, 37, 0, 728);
+    			add_location(div, file, 41, 0, 815);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -476,7 +512,7 @@ var index = (function () {
     		p: function update(ctx, [dirty]) {
     			if (dirty & /*$selections, fixture*/ 3 && div_class_value !== (div_class_value = "" + (null_to_empty(/*$selections*/ ctx[1].viewer.includes(/*fixture*/ ctx[0])
     			? "selected"
-    			: "") + " svelte-1kcskld"))) {
+    			: "") + " svelte-1kpynea"))) {
     				attr_dev(div, "class", div_class_value);
     			}
 
@@ -511,25 +547,28 @@ var index = (function () {
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("Fixture", slots, []);
     	let { fixture = {} } = $$props;
-    	let { selected = false } = $$props;
 
     	const select = e => {
     		if (!e.ctrlKey) {
     			if (!selected) {
     				set_store_value(selections, $selections.viewer = [fixture], $selections);
     			} else {
-    				$selections.viewer.splice($selections.viewer.indexOf(fixture), 1);
+    				if ($selections.viewer.length > 1) {
+    					set_store_value(selections, $selections.viewer = [fixture], $selections);
+    				} else {
+    					set_store_value(selections, $selections.viewer = [], $selections);
+    				}
     			}
     		} else {
     			if (!selected) {
     				set_store_value(selections, $selections.viewer = [...$selections.viewer, fixture], $selections);
     			} else {
-    				$selections.viewer.splice($selections.viewer.indexOf(fixture), 1);
+    				set_store_value(selections, $selections.viewer = $selections.viewer.filter(el => el !== fixture), $selections);
     			}
     		}
     	};
 
-    	const writable_props = ["fixture", "selected"];
+    	const writable_props = ["fixture"];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Fixture> was created with unknown prop '${key}'`);
@@ -537,34 +576,41 @@ var index = (function () {
 
     	$$self.$$set = $$props => {
     		if ("fixture" in $$props) $$invalidate(0, fixture = $$props.fixture);
-    		if ("selected" in $$props) $$invalidate(3, selected = $$props.selected);
     	};
 
     	$$self.$capture_state = () => ({
     		fixtureData,
     		selections,
     		fixture,
-    		selected,
     		select,
+    		selected,
     		$selections
     	});
 
     	$$self.$inject_state = $$props => {
     		if ("fixture" in $$props) $$invalidate(0, fixture = $$props.fixture);
-    		if ("selected" in $$props) $$invalidate(3, selected = $$props.selected);
+    		if ("selected" in $$props) selected = $$props.selected;
     	};
+
+    	let selected;
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [fixture, $selections, select, selected];
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*$selections, fixture*/ 3) {
+    			 selected = $selections.viewer.includes(fixture);
+    		}
+    	};
+
+    	return [fixture, $selections, select];
     }
 
     class Fixture extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance, create_fragment, safe_not_equal, { fixture: 0, selected: 3 });
+    		init(this, options, instance, create_fragment, safe_not_equal, { fixture: 0 });
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
@@ -581,32 +627,26 @@ var index = (function () {
     	set fixture(value) {
     		throw new Error("<Fixture>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
-
-    	get selected() {
-    		throw new Error("<Fixture>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set selected(value) {
-    		throw new Error("<Fixture>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
     }
 
     /* src/Index.svelte generated by Svelte v3.31.0 */
+
+    const { console: console_1 } = globals;
     const file$1 = "src/Index.svelte";
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[3] = list[i];
+    	child_ctx[4] = list[i];
     	return child_ctx;
     }
 
-    // (20:0) {#each $fixtureData as fixture}
+    // (29:1) {#each $fixtureData as fixture}
     function create_each_block(ctx) {
     	let fixture;
     	let current;
 
     	fixture = new Fixture({
-    			props: { fixture: /*fixture*/ ctx[3] },
+    			props: { fixture: /*fixture*/ ctx[4] },
     			$$inline: true
     		});
 
@@ -620,7 +660,7 @@ var index = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const fixture_changes = {};
-    			if (dirty & /*$fixtureData*/ 1) fixture_changes.fixture = /*fixture*/ ctx[3];
+    			if (dirty & /*$fixtureData*/ 1) fixture_changes.fixture = /*fixture*/ ctx[4];
     			fixture.$set(fixture_changes);
     		},
     		i: function intro(local) {
@@ -641,7 +681,7 @@ var index = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(20:0) {#each $fixtureData as fixture}",
+    		source: "(29:1) {#each $fixtureData as fixture}",
     		ctx
     	});
 
@@ -649,7 +689,11 @@ var index = (function () {
     }
 
     function create_fragment$1(ctx) {
-    	let div;
+    	let div0;
+    	let t;
+    	let div1;
+    	let input;
+    	let input_data_jscolor_value;
     	let current;
     	let mounted;
     	let dispose;
@@ -667,29 +711,44 @@ var index = (function () {
 
     	const block = {
     		c: function create() {
-    			div = element("div");
+    			div0 = element("div");
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			attr_dev(div, "class", "svelte-1ecioim");
-    			add_location(div, file$1, 18, 0, 326);
+    			t = space();
+    			div1 = element("div");
+    			input = element("input");
+    			attr_dev(div0, "class", "svelte-1ecioim");
+    			add_location(div0, file$1, 27, 0, 584);
+    			attr_dev(input, "id", "input");
+    			attr_dev(input, "data-jscolor", input_data_jscolor_value = { value: "#FFDCA3" });
+    			add_location(input, file$1, 33, 1, 701);
+    			attr_dev(div1, "class", "svelte-1ecioim");
+    			add_location(div1, file$1, 32, 0, 693);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
+    			insert_dev(target, div0, anchor);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(div, null);
+    				each_blocks[i].m(div0, null);
     			}
 
+    			insert_dev(target, t, anchor);
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, input);
     			current = true;
 
     			if (!mounted) {
-    				dispose = listen_dev(div, "click", /*select*/ ctx[1], false, false, false);
+    				dispose = [
+    					listen_dev(div0, "click", /*select*/ ctx[1], false, false, false),
+    					listen_dev(input, "input", /*changeColor*/ ctx[2], false, false, false)
+    				];
+
     				mounted = true;
     			}
     		},
@@ -709,7 +768,7 @@ var index = (function () {
     						each_blocks[i] = create_each_block(child_ctx);
     						each_blocks[i].c();
     						transition_in(each_blocks[i], 1);
-    						each_blocks[i].m(div, null);
+    						each_blocks[i].m(div0, null);
     					}
     				}
 
@@ -741,10 +800,12 @@ var index = (function () {
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
+    			if (detaching) detach_dev(div0);
     			destroy_each(each_blocks, detaching);
+    			if (detaching) detach_dev(t);
+    			if (detaching) detach_dev(div1);
     			mounted = false;
-    			dispose();
+    			run_all(dispose);
     		}
     	};
 
@@ -763,33 +824,48 @@ var index = (function () {
     	let $selections;
     	let $fixtureData;
     	validate_store(selections, "selections");
-    	component_subscribe($$self, selections, $$value => $$invalidate(2, $selections = $$value));
+    	component_subscribe($$self, selections, $$value => $$invalidate(3, $selections = $$value));
     	validate_store(fixtureData, "fixtureData");
     	component_subscribe($$self, fixtureData, $$value => $$invalidate(0, $fixtureData = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("Index", slots, []);
 
     	const select = e => {
-    		if (e.target !== e.currentTarget) return;
+    		if (e.target !== e.currentTarget || e.ctrlKey) return;
     		set_store_value(selections, $selections.viewer = [], $selections);
+    		console.log("click event");
+    	};
+
+    	const changeColor = e => {
+    		let rgb = convertToRGB(e.target.value);
+
+    		set_store_value(
+    			selections,
+    			$selections.viewer = $selections.viewer.map(el => {
+    				return { ...el, ...rgb };
+    			}),
+    			$selections
+    		);
     	};
 
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Index> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<Index> was created with unknown prop '${key}'`);
     	});
 
     	$$self.$capture_state = () => ({
+    		convertToRGB,
     		fixtureData,
     		selections,
     		Fixture,
     		select,
+    		changeColor,
     		$selections,
     		$fixtureData
     	});
 
-    	return [$fixtureData, select];
+    	return [$fixtureData, select, changeColor];
     }
 
     class Index extends SvelteComponentDev {

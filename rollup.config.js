@@ -54,7 +54,7 @@ for(let page of pages) {
     
         dev && serve(),
         dev && livereload("docs"),
-        !dev && terser
+        !dev && terser()
       ]
     }
   );

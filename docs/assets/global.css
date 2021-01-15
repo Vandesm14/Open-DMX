@@ -1,4 +1,7 @@
-:root {}
+:root {
+	--primary-color: lightblue;
+	--secondary-color: #1a1d20;
+}
 
 * {
   box-sizing: border-box;

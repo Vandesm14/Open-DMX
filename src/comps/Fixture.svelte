@@ -2,20 +2,24 @@
 	import { fixtureData, selections } from '../stores.js';
 	
 	export let fixture = {};
-	export let selected = false;
+	$: selected = $selections.viewer.includes(fixture);
 
 	const select = (e) => {
 		if (!e.ctrlKey) {
 			if (!selected) {
 				$selections.viewer = [fixture];
 			} else {
-				$selections.viewer.splice($selections.viewer.indexOf(fixture), 1);
+				if ($selections.viewer.length > 1) {
+					$selections.viewer = [fixture];
+				} else {
+					$selections.viewer = [];
+				}
 			}
 		} else {
 			if (!selected) {
 				$selections.viewer = [...$selections.viewer, fixture];
 			} else {
-				$selections.viewer.splice($selections.viewer.indexOf(fixture), 1);
+				$selections.viewer = $selections.viewer.filter(el => el !== fixture);
 			}
 		}
 	};
@@ -23,15 +27,15 @@
 
 <style>
 	div {
-		border: 5px solid #1f1f1f;
+		border: 4px solid #6b6980;
 		background-color: black;
-		width: 60px;
-		height: 60px;
+		width: 50px;
+		height: 50px;
 		margin: 10px;
 	}
 
 	div.selected {
-		border: 3px solid #ffd900;
+		outline: 3px solid #ffd900;
 	}
 </style>
 
