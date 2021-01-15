@@ -19,8 +19,6 @@
 					}
 				}
 			}
-
-      $selection.last.id = null;
 		} else {
 			let len = $fixtureData.filter(el => el.selected).length;
 			$fixtureData = $fixtureData.map(el => {
@@ -30,8 +28,7 @@
 				$fixtureData.find(el => el.id === fixture.id).selected = true;
 			}
 		}
-
-		$selection.last = {from: 'veiwer', id: fixture.id};
+		$selection.last = {from: 'fixture', id: fixture.id};
 	};
 </script>
 

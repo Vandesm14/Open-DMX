@@ -1,3 +1,5 @@
+import { fixtureData } from './stores.js';
+
 export const convertToRGB = function (str) {
 	let aRgbHex = str.replace('#', '').match(/.{1,2}/g);
 	let aRgb = {
