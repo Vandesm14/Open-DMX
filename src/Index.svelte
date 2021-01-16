@@ -96,6 +96,11 @@
 				}
 			});
 			$selection.last = {from: 'fixture', id: $selection.last.id - 1};
+		} else if ($selection.last.id > 0) {
+			if ($fixtureData.length > 0) {
+				$fixtureData[0].selected = true;
+				$selection.last = {from: 'fixture', id: 0};
+			}
 		}
 	};
 
@@ -111,9 +116,32 @@
 				}
 			});
 			$selection.last = {from: 'fixture', id: $selection.last.id + 1};
+		} else if ($selection.last.id < $fixtureData.length - 1) {
+			if ($fixtureData.length > 0) {
+				$fixtureData[0].selected = true;
+				$selection.last = {from: 'fixture', id: 0};
+			}
 		}
 	};
 
+	const darkenAll = () => {
+		$fixtureData = $fixtureData.map(el => {
+			return {...el, r: 0, g: 0, b: 0};
+		});
+	};
+
+	const darkenSelected = (e) => {
+		e.preventDefault();
+		$fixtureData = $fixtureData.map(el => {
+			if (el.selected) {
+				return {...el, r: 0, g: 0, b: 0};
+			} else {
+				return {...el};
+			}
+		});
+	};
+
+	hotkeys('backspace', darkenSelected);
 	hotkeys('delete', removeFixture);
 	hotkeys('ctrl+a', selectAll);
 	hotkeys('escape', selectNone);
@@ -175,4 +203,5 @@
 	<button on:click={addFixture}>Add Fixture</button>
 	<button on:click={removeFixture}>Remove Selected</button>
 	<button on:click={selectSameColor}>Select Same Color</button>
+	<button on:click={darkenSelected}>Darken Selected</button>
 </div>
