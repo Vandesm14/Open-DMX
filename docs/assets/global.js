@@ -1,3 +1,3 @@
 jscolor.presets.default = {
-	palette: '#fff #000 #808080 #996e36 #f55525 #ffe438 #88dd20 #22e0cd #269aff #bb1cd4',
+	palette: '#fff #000 #f00 #f70 #ff0 #0f0 #0ff #00f #70f #f0f',
 };

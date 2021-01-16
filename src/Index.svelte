@@ -7,6 +7,7 @@
 	class FixtureItem {
 		constructor() {
 			this.id = (() => ($fixtureData[$fixtureData.length - 1]?.id + 1) || 0)();
+			this.id_static = (() => ($fixtureData[$fixtureData.length - 1]?.id + 1) || 0)();
 			this.r = 0;
 			this.g = 0;
 			this.b = 0;
@@ -39,9 +40,28 @@
 		$fixtureData = $fixtureData.filter(el => !el.selected);
 	};
 
+	const selectSameColor = () => {
+		if ($selection.last?.from === 'fixture') {
+			let last = $fixtureData[$selection.last.id];
+			$fixtureData = $fixtureData.map(el => {
+				if (last.r === el.r && last.g === el.g && last.b === el.b) {
+					return {...el, selected: true};
+				} else {
+					return {...el, selected: false};
+				}
+			});
+		}
+	};
+
 	const selectAll = () => {
 		$fixtureData = $fixtureData.map(el => {
 			return {...el, selected: true};
+		});
+	};
+
+	const selectNone = () => {
+		$fixtureData = $fixtureData.map(el => {
+			return {...el, selected: false};
 		});
 	};
 
@@ -94,19 +114,35 @@
 		}
 	};
 
+	hotkeys('delete', removeFixture);
 	hotkeys('ctrl+a', selectAll);
+	hotkeys('escape', selectNone);
 	hotkeys('ctrl+c', copyColor);
 	hotkeys('ctrl+v', pasteColor);
 	hotkeys('left,ctrl+left,shift+left', prev);
 	hotkeys('right,ctrl+right,shift+right', next);
 
+	let lastLength = 0;
+	fixtureData.subscribe(() => {
+		if ($fixtureData.length !== lastLength) {
+			for (let i = 0; i < $fixtureData.length; i++) {
+				if ($fixtureData[i].id !== i) $fixtureData[i].id = i;
+			}
+			lastLength = $fixtureData.length;
+		}
+	});
+
 	let picker;
 	$: {
 		if ($selection.last?.from === 'fixture') {
 			let last = $fixtureData[$selection.last.id];
-			picker?.jscolor.fromRGBA(last.r, last.g, last.b, 1)
+			if (last)	picker?.jscolor.fromRGBA(last.r, last.g, last.b, 1)
 		}
 	};
+
+	for (let i = 0; i < 10; i++) {
+		addFixture();
+	}
 </script>
 
 <style>
@@ -114,15 +150,18 @@
 		display: flex;
 		align-content: start;
 		flex-direction: row;
-		flex-wrap: wrap;
 		width: 100%;
+	}
+
+	div#viewer {
+		flex-wrap: wrap;
+		justify-content: center;
 		height: 100%;
 	}
 
 	div#controls {
 		margin-bottom: 40vh;
 		height: 14%;
-		flex-wrap: nowrap;
 	}
 </style>
 
@@ -135,7 +174,5 @@
 	<input id="input" data-jscolor="" bind:this={picker} on:input={changeColor}>
 	<button on:click={addFixture}>Add Fixture</button>
 	<button on:click={removeFixture}>Remove Selected</button>
-	<button on:click={selectAll}>Select All</button>
-	<button on:click={copyColor}>Copy Color</button>
-	<button on:click={pasteColor}>Paste Color</button>
+	<button on:click={selectSameColor}>Select Same Color</button>
 </div>

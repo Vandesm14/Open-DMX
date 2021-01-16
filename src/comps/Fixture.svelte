@@ -33,17 +33,35 @@
 </script>
 
 <style>
-	div {
-		margin: 10px;
+	div.fixture {
 		width: 50px;
 		height: 50px;
 		border: 4px solid #6b6980;
 		background-color: black;
 	}
-
-	div.selected {
+	div.fixture.selected {
 		outline: 3px solid #ffd900;
+	}
+
+	div.container {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		margin: 10px;
+		color: white;
+		text-align: center;
+	}
+
+	div.container > p {
+		overflow: hidden;
+		padding-top: 3px;
+		max-width: 50px;
+
+		user-select: none;
 	}
 </style>
 
-<div on:click={select} class={fixture.selected ? 'selected' : ''} style="background-color: rgb({fixture.r}, {fixture.g}, {fixture.b})"></div>
+<div class="container">
+	<div on:click={select} class={'fixture'+(fixture.selected ? ' selected' : '')} style="background-color: rgb({fixture.r}, {fixture.g}, {fixture.b})"></div>
+	<p>{fixture.id_static}</p>
+</div>
